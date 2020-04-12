@@ -34,8 +34,8 @@
 // NOTE: OEMs can avoid the need to maintain/update the defaults.h and cpu_map.h files and use only
 // one configuration file by placing their specific defaults and pin map at the bottom of this file.
 // If doing so, simply comment out these two defines and see instructions below.
-#define DEFAULTS_GENERIC
-#define CPU_MAP_2560_INITIAL
+// #define DEFAULTS_GENERIC
+// #define CPU_MAP_2560_INITIAL
 
 // To use with RAMPS 1.4 Board, comment out the above defines and uncomment the next two defines
 // #define DEFAULTS_RAMPS_BOARD
@@ -112,7 +112,7 @@
   #define HOMING_CYCLE_2 (1<<Z_AXIS)   // OPTIONAL: Home Z axis 
 #else
   #define HOMING_CYCLE_0 (1<<Z_AXIS)                // REQUIRED: First move Z to clear workspace.
-  #define HOMING_CYCLE_1 ((1<<X_AXIS)|(1<<Y_AXIS))  // OPTIONAL: Then move X,Y at the same time.
+  // #define HOMING_CYCLE_1 ((1<<X_AXIS)|(1<<Y_AXIS))  // OPTIONAL: Then move X,Y at the same time.
   // #define HOMING_CYCLE_2                         // OPTIONAL: Uncomment and add axes mask to enable
 #endif // DEFAULTS_RAMPS_BOARD
 
@@ -136,7 +136,7 @@
 // After homing, Grbl will set by default the entire machine space into negative space, as is typical
 // for professional CNC machines, regardless of where the limit switches are located. Uncomment this
 // define to force Grbl to always set the machine origin at the homed location despite switch orientation.
-// #define HOMING_FORCE_SET_ORIGIN // Uncomment to enable.
+#define HOMING_FORCE_SET_ORIGIN // Uncomment to enable.
 
 // Number of blocks Grbl executes upon startup. These blocks are stored in EEPROM, where the size
 // and addresses are defined in settings.h. With the current settings, up to 2 startup blocks may
@@ -305,7 +305,7 @@
 // frequencies below 10kHz, where the aliasing between axes of multi-axis motions can cause audible
 // noise and shake your machine. At even lower step frequencies, AMASS adapts and provides even better
 // step smoothing. See stepper.c for more details on the AMASS system works.
-#define ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING  // Default enabled. Comment to disable.
+// #define ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING  // Default enabled. Comment to disable.
 
 // Sets the maximum step rate allowed to be written as a Grbl setting. This option enables an error
 // check in the settings module to prevent settings values that will exceed this limitation. The maximum
@@ -633,8 +633,144 @@
 */
 
 // Paste CPU_MAP definitions here.
+// Serial port interrupt vectors
+#define SERIAL_RX USART0_RX_vect
+#define SERIAL_UDRE USART0_UDRE_vect
+
+// Define step pulse output pins. NOTE: All step bit pins must be on the same port.
+#define STEP_DDR      DDRL
+#define STEP_PORT     PORTL
+#define STEP_PIN      PINL
+#define X_STEP_BIT    5
+#define Y_STEP_BIT    4
+#define Z_STEP_BIT    3
+#define STEP_MASK ((1<<X_STEP_BIT)|(1<<Y_STEP_BIT)|(1<<Z_STEP_BIT)) // All step bits
+
+// Define step direction output pins. NOTE: All direction pins must be on the same port.
+#define DIRECTION_DDR     DDRL
+#define DIRECTION_PORT    PORTL
+#define DIRECTION_PIN     PINL
+#define X_DIRECTION_BIT   0
+#define Y_DIRECTION_BIT   2
+#define Z_DIRECTION_BIT   1
+#define DIRECTION_MASK ((1<<X_DIRECTION_BIT)|(1<<Y_DIRECTION_BIT)|(1<<Z_DIRECTION_BIT)) // All direction bits
+
+// Define stepper driver enable/disable output pin.
+#define STEPPERS_DISABLE_DDR   DDRK
+#define STEPPERS_DISABLE_PORT  PORTK
+#define STEPPERS_DISABLE_BIT   0
+#define STEPPERS_DISABLE_MASK (1<<STEPPERS_DISABLE_BIT)
+
+// Define homing/hard limit switch input pins and limit interrupt vectors.
+// NOTE: All limit bit pins must be on the same port
+#define LIMIT_DDR       DDRD
+#define LIMIT_PORT      PORTD
+#define LIMIT_PIN       PIND
+#define X_LIMIT_BIT     0
+#define Y_LIMIT_BIT     1
+#define Z_LIMIT_BIT     2
+
+#define LIMIT_INT       PCIE0  // Pin change interrupt enable pin
+#define LIMIT_INT_vect  PCINT0_vect
+#define LIMIT_PCMSK     PCMSK0 // Pin change interrupt register
+#define LIMIT_MASK ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT)) // All limit bits
+
+// Define spindle enable and spindle direction output pins.
+#define SPINDLE_ENABLE_DDR      DDRH
+#define SPINDLE_ENABLE_PORT     PORTH
+#define SPINDLE_ENABLE_BIT      6
+#define SPINDLE_DIRECTION_DDR   DDRH
+#define SPINDLE_DIRECTION_PORT  PORTH
+#define SPINDLE_DIRECTION_BIT   0
+
+// Define flood and mist coolant enable output pins.
+#define COOLANT_FLOOD_DDR   DDRH
+#define COOLANT_FLOOD_PORT  PORTH
+#define COOLANT_FLOOD_BIT   5
+#define COOLANT_MIST_DDR    DDRH
+#define COOLANT_MIST_PORT   PORTH
+#define COOLANT_MIST_BIT    1
+
+// Define user-control CONTROLs (cycle start, reset, feed hold) input pins.
+// NOTE: All CONTROLs pins must be on the same port and not on a port with other input pins (limits).
+#define CONTROL_DDR       DDRK
+#define CONTROL_PIN       PINK
+#define CONTROL_PORT      PORTK
+#define CONTROL_RESET_BIT         1
+#define CONTROL_FEED_HOLD_BIT     2
+#define CONTROL_CYCLE_START_BIT   3
+#define CONTROL_SAFETY_DOOR_BIT   4
+#define CONTROL_INT       PCIE2  // Pin change interrupt enable pin
+#define CONTROL_INT_vect  PCINT2_vect
+#define CONTROL_PCMSK     PCMSK2 // Pin change interrupt register
+#define CONTROL_MASK      ((1<<CONTROL_RESET_BIT)|(1<<CONTROL_FEED_HOLD_BIT)|(1<<CONTROL_CYCLE_START_BIT)|(1<<CONTROL_SAFETY_DOOR_BIT))
+
+// Define probe switch input pin.
+#define PROBE_DDR       DDRK
+#define PROBE_PIN       PINK
+#define PROBE_PORT      PORTK
+#define PROBE_BIT       5
+#define PROBE_MASK      (1<<PROBE_BIT)
+
+// Advanced Configuration Below You should not need to touch these variables
+// Set Timer up to use TIMER4B which is attached to Digital Pin 7
+#define SPINDLE_PWM_MAX_VALUE     1024.0 // Translates to about 1.9 kHz PWM frequency at 1/8 prescaler
+#ifndef SPINDLE_PWM_MIN_VALUE
+  #define SPINDLE_PWM_MIN_VALUE   1   // Must be greater than zero.
+#endif
+#define SPINDLE_PWM_OFF_VALUE     0
+#define SPINDLE_PWM_RANGE         (SPINDLE_PWM_MAX_VALUE-SPINDLE_PWM_MIN_VALUE)
+#define SPINDLE_TCCRA_REGISTER		TCCR4A
+#define SPINDLE_TCCRB_REGISTER		TCCR4B
+#define SPINDLE_OCR_REGISTER	  	OCR4B
+#define SPINDLE_COMB_BIT			    COM4B1
+
+// 1/8 Prescaler, 16-bit Fast PWM mode
+#define SPINDLE_TCCRA_INIT_MASK ((1<<WGM40) | (1<<WGM41))
+#define SPINDLE_TCCRB_INIT_MASK ((1<<WGM42) | (1<<WGM43) | (1<<CS41))
+#define SPINDLE_OCRA_REGISTER   OCR4A // 16-bit Fast PWM mode requires top reset value stored here.
+#define SPINDLE_OCRA_TOP_VALUE  0x0400 // PWM counter reset value. Should be the same as PWM_MAX_VALUE in hex.
+
+// Define spindle output pins.
+#define SPINDLE_PWM_DDR		DDRH
+#define SPINDLE_PWM_PORT  PORTH
+#define SPINDLE_PWM_BIT		4
 
 // Paste default settings definitions here.
+#define DEFAULT_X_STEPS_PER_MM 250.0
+#define DEFAULT_Y_STEPS_PER_MM 250.0
+#define DEFAULT_Z_STEPS_PER_MM 250.0
+#define DEFAULT_X_MAX_RATE 500.0 // mm/min
+#define DEFAULT_Y_MAX_RATE 500.0 // mm/min
+#define DEFAULT_Z_MAX_RATE 500.0 // mm/min
+#define DEFAULT_X_ACCELERATION (10.0*60*60) // 10*60*60 mm/min^2 = 10 mm/sec^2
+#define DEFAULT_Y_ACCELERATION (10.0*60*60) // 10*60*60 mm/min^2 = 10 mm/sec^2
+#define DEFAULT_Z_ACCELERATION (10.0*60*60) // 10*60*60 mm/min^2 = 10 mm/sec^2
+#define DEFAULT_X_MAX_TRAVEL 200.0 // mm NOTE: Must be a positive value.
+#define DEFAULT_Y_MAX_TRAVEL 200.0 // mm NOTE: Must be a positive value.
+#define DEFAULT_Z_MAX_TRAVEL 200.0 // mm NOTE: Must be a positive value.
+#define DEFAULT_SPINDLE_RPM_MAX 1000.0 // rpm
+#define DEFAULT_SPINDLE_RPM_MIN 0.0 // rpm
+#define DEFAULT_STEP_PULSE_MICROSECONDS 10
+#define DEFAULT_STEPPING_INVERT_MASK 0
+#define DEFAULT_DIRECTION_INVERT_MASK 0
+#define DEFAULT_STEPPER_IDLE_LOCK_TIME 25 // msec (0-254, 255 keeps steppers enabled)
+#define DEFAULT_STATUS_REPORT_MASK 1 // MPos enabled
+#define DEFAULT_JUNCTION_DEVIATION 0.01 // mm
+#define DEFAULT_ARC_TOLERANCE 0.002 // mm
+#define DEFAULT_REPORT_INCHES 0 // false
+#define DEFAULT_INVERT_ST_ENABLE 0 // false
+#define DEFAULT_INVERT_LIMIT_PINS 0 // false
+#define DEFAULT_SOFT_LIMIT_ENABLE 0 // false
+#define DEFAULT_HARD_LIMIT_ENABLE 0  // false
+#define DEFAULT_INVERT_PROBE_PIN 0 // false
+#define DEFAULT_LASER_MODE 0 // false
+#define DEFAULT_HOMING_ENABLE 0  // false
+#define DEFAULT_HOMING_DIR_MASK 0 // move positive dir
+#define DEFAULT_HOMING_FEED_RATE 25.0 // mm/min
+#define DEFAULT_HOMING_SEEK_RATE 500.0 // mm/min
+#define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
+#define DEFAULT_HOMING_PULLOFF 1.0 // mm
 
 
 #endif
