@@ -678,7 +678,7 @@
 // Define spindle enable and spindle direction output pins.
 #define SPINDLE_ENABLE_DDR      DDRH
 #define SPINDLE_ENABLE_PORT     PORTH
-#define SPINDLE_ENABLE_BIT      6
+#define SPINDLE_ENABLE_BIT      4
 #define SPINDLE_DIRECTION_DDR   DDRH
 #define SPINDLE_DIRECTION_PORT  PORTH
 #define SPINDLE_DIRECTION_BIT   0
@@ -713,28 +713,28 @@
 #define PROBE_MASK      (1<<PROBE_BIT)
 
 // Advanced Configuration Below You should not need to touch these variables
-// Set Timer up to use TIMER4B which is attached to Digital Pin 7
-#define SPINDLE_PWM_MAX_VALUE     1024.0 // Translates to about 1.9 kHz PWM frequency at 1/8 prescaler
+// Set Timer up to use TIMER2B which is attached to PH6
+#define SPINDLE_PWM_MAX_VALUE     249 // Translates to about 1.0 kHz PWM frequency at 1/64 prescaler
 #ifndef SPINDLE_PWM_MIN_VALUE
   #define SPINDLE_PWM_MIN_VALUE   1   // Must be greater than zero.
 #endif
 #define SPINDLE_PWM_OFF_VALUE     0
 #define SPINDLE_PWM_RANGE         (SPINDLE_PWM_MAX_VALUE-SPINDLE_PWM_MIN_VALUE)
-#define SPINDLE_TCCRA_REGISTER		TCCR4A
-#define SPINDLE_TCCRB_REGISTER		TCCR4B
-#define SPINDLE_OCR_REGISTER	  	OCR4B
-#define SPINDLE_COMB_BIT			    COM4B1
+#define SPINDLE_TCCRA_REGISTER		TCCR2A
+#define SPINDLE_TCCRB_REGISTER		TCCR2B
+#define SPINDLE_OCR_REGISTER	  	OCR2B
+#define SPINDLE_COMB_BIT			    COM2B1
 
 // 1/8 Prescaler, 16-bit Fast PWM mode
-#define SPINDLE_TCCRA_INIT_MASK ((1<<WGM40) | (1<<WGM41))
-#define SPINDLE_TCCRB_INIT_MASK ((1<<WGM42) | (1<<WGM43) | (1<<CS41))
-#define SPINDLE_OCRA_REGISTER   OCR4A // 16-bit Fast PWM mode requires top reset value stored here.
-#define SPINDLE_OCRA_TOP_VALUE  0x0400 // PWM counter reset value. Should be the same as PWM_MAX_VALUE in hex.
+#define SPINDLE_TCCRA_INIT_MASK ((1<<WGM20) | (1<<WGM21))
+#define SPINDLE_TCCRB_INIT_MASK ((1<<WGM22) | (1<<CS22))
+#define SPINDLE_OCRA_REGISTER   OCR2A // 8-bit Fast PWM mode requires top reset value stored here.
+#define SPINDLE_OCRA_TOP_VALUE  249 // PWM counter reset value. Should be the same as PWM_MAX_VALUE in hex.
 
 // Define spindle output pins.
 #define SPINDLE_PWM_DDR		DDRH
 #define SPINDLE_PWM_PORT  PORTH
-#define SPINDLE_PWM_BIT		4
+#define SPINDLE_PWM_BIT		6
 
 // Paste default settings definitions here.
 #define DEFAULT_X_STEPS_PER_MM 250.0
